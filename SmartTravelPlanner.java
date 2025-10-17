@@ -1,6 +1,10 @@
 import java.util.*;
 import java.io.*;
 
+/**
+ * Main class for Smart Travel Planner Application.
+ * Allows users to choose destinations, plan trips, view cost breakdowns, and save plans.
+ */
 public class SmartTravelPlanner {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -10,23 +14,24 @@ public class SmartTravelPlanner {
         System.out.println("========================================\n");
 
         try {
+            // Get traveler name
             System.out.print("Enter your name: ");
             String name = scanner.nextLine();
 
-            
+            // Create planner object
             TravelPlanner planner = new TravelPlanner(name);
 
-        
+            // Get and set budget
             System.out.print("Enter your budget ($): ");
             double budget = scanner.nextDouble();
             planner.setBudget(budget);
 
-            
+            // Initialize location list
             LocationList locationList = new LocationList();
-        
 
             boolean planning = true;
             while (planning) {
+                // Menu options
                 System.out.println("\n--- MENU ---");
                 System.out.println("1. View all destinations");
                 System.out.println("2. Add destination to plan");
@@ -39,13 +44,16 @@ public class SmartTravelPlanner {
 
                 switch (choice) {
                     case 1:
+                        // Display available destinations
                         locationList.displayAllDestinations();
                         break;
 
                     case 2:
+                        // Add destination to user's plan
                         locationList.displayAllDestinations();
                         System.out.print("Enter destination number: ");
                         int destNum = scanner.nextInt();
+
                         try {
                             Destination selected = locationList.getDestination(destNum - 1);
                             planner.addDestination(selected);
@@ -56,13 +64,16 @@ public class SmartTravelPlanner {
                         break;
 
                     case 3:
+                        // Show travel plan
                         planner.displayPlan();
                         break;
 
                     case 4:
-                        scanner.nextLine(); 
+                        // Save plan to file
+                        scanner.nextLine(); // consume newline
                         System.out.print("Enter filename (e.g., myplan.txt): ");
                         String filename = scanner.nextLine();
+
                         try {
                             planner.saveToFile(filename);
                         } catch (IOException e) {
@@ -71,6 +82,7 @@ public class SmartTravelPlanner {
                         break;
 
                     case 5:
+                        // Exit
                         planning = false;
                         System.out.println("\nHappy travels! Goodbye!");
                         break;
@@ -92,7 +104,9 @@ public class SmartTravelPlanner {
     }
 }
 
-
+/**
+ * Represents a general travel destination.
+ */
 class Destination {
     protected String name;
     protected String country;
@@ -111,6 +125,7 @@ class Destination {
     public double getBaseCost() { return baseCost; }
     public String getDescription() { return description; }
 
+    /** Displays destination details. */
     public void displayInfo() {
         System.out.println("Location: " + name + ", " + country);
         System.out.println("   " + description);
@@ -118,7 +133,9 @@ class Destination {
     }
 }
 
-
+/**
+ * Represents a city-type destination with attractions and transport costs.
+ */
 class CityPlan extends Destination {
     private ArrayList<String> attractions;
     private double transportCost;
@@ -126,16 +143,14 @@ class CityPlan extends Destination {
     public CityPlan(String name, String country, double baseCost, String description) {
         super(name, country, baseCost, description);
         this.attractions = new ArrayList<>();
-        this.transportCost = 50.0;
+        this.transportCost = 50.0; // default cost
     }
 
-    public void addAttraction(String attraction) {
-        attractions.add(attraction);
-    }
-
+    public void addAttraction(String attraction) { attractions.add(attraction); }
     public ArrayList<String> getAttractions() { return attractions; }
     public double getTransportCost() { return transportCost; }
 
+    /** Displays detailed city info with attractions and transport. */
     @Override
     public void displayInfo() {
         super.displayInfo();
@@ -146,27 +161,32 @@ class CityPlan extends Destination {
     }
 }
 
+/**
+ * Represents a multi-day tour with additional costs and duration.
+ */
 class TourPlan extends Destination {
     private int durationDays;
     private String tourType;
     private double dailyCost;
 
-    public TourPlan(String name, String country, double baseCost, String description, 
+    public TourPlan(String name, String country, double baseCost, String description,
                     int durationDays, String tourType) {
         super(name, country, baseCost, description);
         this.durationDays = durationDays;
         this.tourType = tourType;
-        this.dailyCost = 100.0;
+        this.dailyCost = 100.0; // default per day cost
     }
 
     public int getDurationDays() { return durationDays; }
     public String getTourType() { return tourType; }
     public double getDailyCost() { return dailyCost; }
 
+    /** Calculates total tour cost. */
     public double getTotalTourCost() {
         return baseCost + (dailyCost * durationDays);
     }
 
+    /** Displays detailed tour information. */
     @Override
     public void displayInfo() {
         super.displayInfo();
@@ -177,19 +197,23 @@ class TourPlan extends Destination {
     }
 }
 
+/** Custom exception for missing route/destination. */
 class RouteNotFoundException extends Exception {
     public RouteNotFoundException(String message) {
         super(message);
     }
 }
 
+/** Custom exception for invalid budgets. */
 class InvalidBudgetException extends Exception {
     public InvalidBudgetException(String message) {
         super(message);
     }
 }
 
-
+/**
+ * Holds all available destinations (city plans and tours).
+ */
 class LocationList {
     private ArrayList<Destination> destinations;
 
@@ -198,39 +222,40 @@ class LocationList {
         loadDefaultDestinations();
     }
 
+    /** Loads a few predefined destinations. */
     private void loadDefaultDestinations() {
-        
-        CityPlan paris = new CityPlan("Paris", "France", 500.0, 
-            "The City of Light with iconic landmarks");
+        CityPlan paris = new CityPlan("Paris", "France", 500.0,
+                "The City of Light with iconic landmarks");
         paris.addAttraction("Eiffel Tower");
         paris.addAttraction("Louvre Museum");
         paris.addAttraction("Notre-Dame");
         destinations.add(paris);
 
-        CityPlan tokyo = new CityPlan("Tokyo", "Japan", 600.0, 
-            "Modern metropolis with rich culture");
+        CityPlan tokyo = new CityPlan("Tokyo", "Japan", 600.0,
+                "Modern metropolis with rich culture");
         tokyo.addAttraction("Senso-ji Temple");
         tokyo.addAttraction("Tokyo Tower");
         tokyo.addAttraction("Shibuya Crossing");
         destinations.add(tokyo);
 
-        CityPlan newYork = new CityPlan("New York", "USA", 700.0, 
-            "The city that never sleeps");
+        CityPlan newYork = new CityPlan("New York", "USA", 700.0,
+                "The city that never sleeps");
         newYork.addAttraction("Statue of Liberty");
         newYork.addAttraction("Central Park");
         newYork.addAttraction("Times Square");
         destinations.add(newYork);
 
-        destinations.add(new TourPlan("Bali", "Indonesia", 400.0, 
-            "Tropical paradise with beaches and temples", 7, "Beach & Culture"));
-        
-        destinations.add(new TourPlan("Swiss Alps", "Switzerland", 800.0, 
-            "Mountain adventure with stunning views", 5, "Adventure"));
-        
-        destinations.add(new TourPlan("Dubai", "UAE", 900.0, 
-            "Luxury and modern architecture", 4, "Luxury"));
+        destinations.add(new TourPlan("Bali", "Indonesia", 400.0,
+                "Tropical paradise with beaches and temples", 7, "Beach & Culture"));
+
+        destinations.add(new TourPlan("Swiss Alps", "Switzerland", 800.0,
+                "Mountain adventure with stunning views", 5, "Adventure"));
+
+        destinations.add(new TourPlan("Dubai", "UAE", 900.0,
+                "Luxury and modern architecture", 4, "Luxury"));
     }
 
+    /** Optionally load custom destinations from file. */
     public void loadFromFile(String filename) throws IOException {
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
             String line;
@@ -248,6 +273,7 @@ class LocationList {
         }
     }
 
+    /** Displays all destinations. */
     public void displayAllDestinations() {
         System.out.println("\n========================================");
         System.out.println("     AVAILABLE DESTINATIONS             ");
@@ -259,6 +285,7 @@ class LocationList {
         }
     }
 
+    /** Get a destination by index (1-based in menu). */
     public Destination getDestination(int index) throws RouteNotFoundException {
         if (index < 0 || index >= destinations.size()) {
             throw new RouteNotFoundException("Destination not found at index: " + index);
@@ -271,6 +298,9 @@ class LocationList {
     }
 }
 
+/**
+ * Manages budget and expenses for travel.
+ */
 class CostManager {
     private double totalCost;
     private double budget;
@@ -293,11 +323,9 @@ class CostManager {
     public double getTotalCost() { return totalCost; }
     public double getBudget() { return budget; }
     public double getRemainingBudget() { return budget - totalCost; }
+    public boolean isWithinBudget() { return totalCost <= budget; }
 
-    public boolean isWithinBudget() {
-        return totalCost <= budget;
-    }
-
+    /** Prints a clear cost summary for the trip. */
     public void displayCostBreakdown() {
         System.out.println("\n========================================");
         System.out.println("         COST BREAKDOWN                 ");
@@ -308,7 +336,7 @@ class CostManager {
         System.out.println("\n  Total Cost: $" + totalCost);
         System.out.println("  Your Budget: $" + budget);
         System.out.println("  Remaining: $" + getRemainingBudget());
-        
+
         if (isWithinBudget()) {
             System.out.println("  Within budget!");
         } else {
@@ -317,6 +345,9 @@ class CostManager {
     }
 }
 
+/**
+ * Handles user’s overall travel plan, including destinations and cost management.
+ */
 class TravelPlanner {
     private ArrayList<Destination> selectedDestinations;
     private CostManager costManager;
@@ -331,6 +362,7 @@ class TravelPlanner {
         this.costManager = new CostManager(budget);
     }
 
+    /** Add a chosen destination and automatically update cost. */
     public void addDestination(Destination dest) {
         selectedDestinations.add(dest);
         costManager.addCost(dest.getName() + " (Base)", dest.getBaseCost());
@@ -340,11 +372,12 @@ class TravelPlanner {
             costManager.addCost(dest.getName() + " (Transport)", city.getTransportCost());
         } else if (dest instanceof TourPlan) {
             TourPlan tour = (TourPlan) dest;
-            costManager.addCost(dest.getName() + " (Daily x" + tour.getDurationDays() + ")", 
-                tour.getDailyCost() * tour.getDurationDays());
+            costManager.addCost(dest.getName() + " (Daily x" + tour.getDurationDays() + ")",
+                    tour.getDailyCost() * tour.getDurationDays());
         }
     }
 
+    /** Display full travel itinerary and budget summary. */
     public void displayPlan() {
         System.out.println("\n========================================");
         System.out.println("    YOUR TRAVEL PLAN - " + travelerName);
@@ -365,6 +398,7 @@ class TravelPlanner {
         costManager.displayCostBreakdown();
     }
 
+    /** Save plan details to a text file. */
     public void saveToFile(String filename) throws IOException {
         try (PrintWriter writer = new PrintWriter(new FileWriter(filename))) {
             writer.println("TRAVEL PLAN FOR: " + travelerName);
@@ -386,4 +420,3 @@ class TravelPlanner {
         }
     }
 }
-
