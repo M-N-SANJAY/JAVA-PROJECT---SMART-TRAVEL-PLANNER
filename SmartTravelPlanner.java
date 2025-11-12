@@ -50,7 +50,6 @@ public class SmartTravelPlanner {
 
                     case 2:
                         // Add destination to user's plan
-                        locationList.displayAllDestinations();
                         System.out.print("Enter destination number: ");
                         int destNum = scanner.nextInt();
 
